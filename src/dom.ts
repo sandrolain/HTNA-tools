@@ -1,4 +1,5 @@
 import { forEach } from "./iterable";
+import { getDescendantProp } from "./object";
 
 export type ElementAttributesMap = Map<string, any> | Record<string, any>;
 export type ElementChildrenArray = (Node | string | ElementParamsArray)[];
@@ -68,16 +69,19 @@ export function create<T=HTMLElement> (
   return node as unknown as T;
 }
 
+// TODO: test
 // TODO: docs
 export function $<T=HTMLElement> (selector: string, targetElement: Document | HTMLElement = document): T {
   return targetElement.querySelector(selector) as unknown as T;
 }
 
+// TODO: test
 // TODO: docs
 export function $$<T=HTMLElement> (selector: string, targetElement: Document | HTMLElement = document): T[] {
   return Array.from(targetElement.querySelectorAll(selector)) as unknown as T[];
 }
 
+// TODO: test
 // TODO: docs
 export function at (selector: string | HTMLElement, eventName: string, listener: EventListenerOrEventListenerObject): boolean {
   const node = (typeof selector === "string") ? $(selector) : selector;
@@ -86,4 +90,146 @@ export function at (selector: string | HTMLElement, eventName: string, listener:
     return true;
   }
   return false;
+}
+
+
+// TODO: test
+// TODO: docs
+export function tpl (tokens: string[], ...values: any[]): HTMLTemplateBuilder {
+  return new HTMLTemplateBuilder(tokens, values);
+}
+
+class HTMLTemplateBuilder {
+  constructor (private tokens: string[], private values: any[]) {}
+
+  template (vars = {}): HTMLTemplateElement {
+    const html = this.html(vars);
+    const node = document.createElement("template");
+    node.innerHTML = html;
+    return node;
+  }
+
+  html (vars: Record<string | number, any> = {}): string  {
+    const html = [];
+    const len = this.tokens.length;
+    for(let i = 0; i < len; i++) {
+      html.push(this.tokens[i]);
+      const value = this.values[i];
+      if(value !== null && value !== undefined) {
+        const type: string = typeof value;
+        let result;
+        if(type === "function") {
+          result = value(vars);
+        } else if(type === "number") {
+          result = vars[value];
+        } else if(type === "string") {
+          result = getDescendantProp(vars, value);
+        }
+        if(result !== null && result !== undefined) {
+          html.push(result);
+        }
+      }
+      return html.join("");
+    }
+  }
+}
+
+// TODO: test
+// TODO: docs
+export const byTagName = ($node: Element, tagName: string): Element[] => {
+  return Array.from($node.getElementsByTagName(tagName));
+};
+
+// TODO: test
+// TODO: docs
+export const removeNode = ($node: Node): void => {
+  if($node.parentNode) {
+    $node.parentNode.removeChild($node);
+  }
+};
+
+// TODO: test
+// TODO: docs
+export const removeNodes = ($$nodes: Node[]): void => {
+  for(const $node of $$nodes) {
+    removeNode($node);
+  }
+};
+
+// TODO: test
+// TODO: docs
+export const insertNodeBefore = ($node: Node, $dest: Node): void => {
+  if($dest.parentNode) {
+    $dest.parentNode.insertBefore($node, $dest);
+  }
+};
+
+// TODO: test
+// TODO: docs
+export const insertNodesBefore = ($$nodes: Node[], $dest: Node): void => {
+  for(const $node of $$nodes) {
+    insertNodeBefore($node, $dest);
+  }
+};
+
+// TODO: test
+// TODO: docs
+export const replaceWithNode = ($dest: Node, $node: Node): void => {
+  insertNodeBefore($node, $dest);
+  removeNode($dest);
+};
+
+// TODO: test
+// TODO: docs
+export const replaceWithNodes = ($dest: Node, $$nodes: Node[]): void => {
+  insertNodesBefore($$nodes, $dest);
+  removeNode($dest);
+};
+
+// TODO: test
+// TODO: docs
+export const getAttributesMap = ($node: Element): Map<string, string> => {
+  const attributes = new Map();
+
+  for(let i = 0, len = $node.attributes.length; i < len; i++) {
+    const { name, value } = $node.attributes.item(i);
+
+    attributes.set(name, value);
+  }
+
+  return attributes;
+};
+
+// TODO: test
+// TODO: docs
+export const getAttributesObject = ($node: Element): Record<string, string> => {
+  const attributes: Record<string, string> = {};
+
+  for(let i = 0, len = $node.attributes.length; i < len; i++) {
+    const { name, value } = $node.attributes.item(i);
+
+    attributes[name] = value;
+  }
+
+  return attributes;
+};
+
+// TODO: test
+// TODO: docs
+export const getChildren = ($node: Element): Node[] => {
+  return Array.from($node.childNodes);
+};
+
+// TODO: test
+// TODO: docs
+export function getTemplateNodeFromHTML (html: string): HTMLTemplateElement {
+  const node = document.createElement("template");
+  node.innerHTML = html;
+  return node;
+}
+
+// TODO: test
+// TODO: docs
+export function getFragmentFromHTML (html: string): DocumentFragment {
+  return getTemplateNodeFromHTML(html).content.cloneNode(true) as DocumentFragment;
 }

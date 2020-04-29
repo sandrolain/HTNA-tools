@@ -1,18 +1,5 @@
 
-/**
- * Escape HTML entities
- * @param string The string to escape
- * @returns The escaped HTML string
- */
-export function htmlEntities (string: string): string {
-  return string.replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-
+// TODO: test
 // TODO: docs
 export function camelCase (str: string): string {
   return str.replace(/-\D/g, function (m: string): string {
@@ -21,9 +8,46 @@ export function camelCase (str: string): string {
 }
 
 
+// TODO: test
 // TODO: docs
 export function hyphenate (str: string): string {
   return str.replace(/[A-Z]/g, function (m: string): string {
     return `-${m.toLowerCase()}`;
+  });
+}
+
+
+// TODO: test
+// TODO: docs
+// TODO: string or dom ?
+export function copyToClipboard (str: string): boolean {
+  const el = document.createElement("textarea");
+  el.style.position = "absolute";
+  el.style.left = "0";
+  el.style.top = "0";
+  el.style.opacity = "0";
+  el.value = str;
+  document.body.appendChild(el);
+  el.focus();
+  el.select();
+  const result = document.execCommand("copy");
+  document.body.removeChild(el);
+  return result;
+}
+
+
+// TODO: test
+// TODO: docs
+// ref. https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+export function uuidv4 (): string {
+  if(window.crypto) {
+    return ((1e7).toString() + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (k: string) => {
+      const c = parseInt(k, 10);
+      return (c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+    });
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c): string {
+    const r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
   });
 }

@@ -1,5 +1,5 @@
 import { hyphenate } from "./string";
-import { fetchText } from "./net";
+import { fetchText } from "./netw";
 
 const numberOnlyProperties: Record<string, boolean> = {
   "z-index": true,

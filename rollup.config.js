@@ -1,6 +1,7 @@
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
+import del from "rollup-plugin-delete";
 
 export default [
   {
@@ -8,15 +9,22 @@ export default [
     output: {
       file: "dist/umd/index.js",
       format: "umd",
-      name: "fancyCase",
+      name: "webTools",
       esModule: false,
       sourcemap: true
     },
     plugins: [
+      del({
+        targets: ["./dist/umd/*"]
+      }),
       typescript({
         typescript: require("typescript")
       }),
-      terser()
+      terser({
+        output: {
+          comments: false
+        }
+      })
     ]
   },
   {
@@ -27,14 +35,13 @@ export default [
       dom: "src/dom.ts",
       netw: "src/netw.ts",
       iterable: "src/iterable.ts",
-      string: "src/string.ts"
+      string: "src/string.ts",
+      html: "src/html.ts",
+      load: "src/load.ts",
+      object: "src/object.ts",
+      array: "src/array.ts"
     },
     output: [
-      {
-        dir: "./dist/cjs",
-        format: "cjs",
-        sourcemap: true
-      },
       {
         dir: "./dist/esm",
         format: "esm",
@@ -42,10 +49,18 @@ export default [
       }
     ],
     plugins: [
+      del({
+        targets: ["./dist/esm/*"]
+      }),
       typescript({
         typescript: require("typescript")
       }),
-      resolve()
+      resolve(),
+      terser({
+        output: {
+          comments: false
+        }
+      })
     ]
   }
 ];
