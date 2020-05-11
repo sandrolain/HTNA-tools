@@ -65,14 +65,12 @@ export function processPropertyValue (property: string, value: any, priority: Pr
   };
 }
 
-
 // TODO: docs
 // TODO: test
 export function processPropertyValueAsString (property: string, value: any, pad = 0): string {
   const res = processPropertyValue(property, value);
   return `${"  ".repeat(pad)}${res.property}: ${res.value}${res.priority ? " " : ""}${res.priority};`;
 }
-
 
 // TODO: docs
 // TODO: test
@@ -126,8 +124,8 @@ export function serializeStyleStructure (obj: Record<string, any>, parentKey: st
   return res.concat(sub).join("\n");
 }
 
-
 // TODO: docs
+// TODO: test
 export function getPropertiesString (rules: Record<string, any>): string {
   const temp: string[] = [];
   for(const prop in rules) {
@@ -137,6 +135,7 @@ export function getPropertiesString (rules: Record<string, any>): string {
 }
 
 // TODO: docs
+// TODO: test
 export async function fetchStyleImports (url: string, init?: RequestInit): Promise<string> {
   let source = await fetchText(url, init);
   const importRegExp = /@import\s+(?:url\()?['"]?([^'"]+)['"]?\)?;?/gi;
@@ -150,8 +149,8 @@ export async function fetchStyleImports (url: string, init?: RequestInit): Promi
   return source;
 }
 
-
 // TODO: docs
+// TODO: test
 export function formatStyleImport (url: string): string {
   return `@import url('${url}');`;
 }

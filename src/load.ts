@@ -17,3 +17,18 @@ export function loadScript (url: string): Promise<string> {
     document.head.appendChild(node);
   });
 }
+
+// TODO: docs
+// TODO: test
+export function loadImage (url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = (): void => {
+      resolve(img);
+    };
+    img.onerror = (event): void => {
+      reject(event);
+    };
+    img.src = url;
+  });
+}

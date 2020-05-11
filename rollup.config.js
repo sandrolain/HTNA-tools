@@ -39,7 +39,11 @@ export default [
       html: "src/html.ts",
       load: "src/load.ts",
       object: "src/object.ts",
-      array: "src/array.ts"
+      array: "src/array.ts",
+      file: "src/file.ts",
+      form: "src/form.ts",
+      regexp: "src/regexp.ts",
+      worker: "src/worker.ts"
     },
     output: [
       {

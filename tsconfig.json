@@ -9,7 +9,7 @@
     "removeComments": false,
     "noImplicitAny": true,
     "sourceMap": true,
-    "lib": ["DOM", "ES2020"],
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "baseUrl": ".",
     "outDir": "./dist",
     "paths": {

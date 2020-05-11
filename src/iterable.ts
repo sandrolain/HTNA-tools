@@ -11,16 +11,16 @@ export type ForEachIterable =
 * @param callback The callback function invoked for every key-value pair
 */
 export function forEach (
-list: ForEachIterable,
-callback: (value: any, key: any) => any
+  list: ForEachIterable,
+  callback: (value: any, key: any) => any
 ): void {
-if(list) {
-  if(list instanceof Map || list instanceof Array || list instanceof Set) {
-    list.forEach(callback);
-  } else if(typeof list === "object") {
-    for(const key in list) {
-      callback.call(list, list[key], key);
+  if(list) {
+    if(list instanceof Map || list instanceof Array || list instanceof Set) {
+      list.forEach(callback);
+    } else if(typeof list === "object") {
+      for(const key in list) {
+        callback.call(list, list[key], key);
+      }
     }
   }
-}
 }

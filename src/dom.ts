@@ -1,5 +1,6 @@
 import { forEach } from "./iterable";
 import { getDescendantProp } from "./object";
+import { htmlEntitiesDecode } from "./html";
 
 export type ElementAttributesMap = Map<string, any> | Record<string, any>;
 export type ElementChildrenArray = (Node | string | ElementParamsArray)[];
@@ -95,7 +96,45 @@ export function at (selector: string | HTMLElement, eventName: string, listener:
 
 // TODO: test
 // TODO: docs
-export function tpl (tokens: string[], ...values: any[]): HTMLTemplateBuilder {
+export function tplParseString (tpl: string): [string[], any[]] {
+  const strings = [];
+  const args = [];
+  let index = tpl.indexOf("${");
+  while(index > -1) {
+    let scopeNum = 0;
+    const str = tpl.substring(0, index);
+    strings.push(str);
+    tpl = tpl.substring(index + 2);
+    for(let i = 0, len = tpl.length; i < len; i++) {
+      const cha = tpl[i];
+      if(cha === "}") {
+        if(scopeNum === 0) {
+          const arg = tpl.substring(0, i);
+          args.push(htmlEntitiesDecode(arg));
+          tpl = tpl.substring(i + 1);
+          break;
+        }
+        scopeNum--;
+      } else if(cha === "{") {
+        scopeNum++;
+      }
+    }
+    index = tpl.indexOf("${");
+  }
+  strings.push(tpl);
+  return [strings, args];
+}
+
+// TODO: test
+// TODO: docs
+export function tpl (tokens: string[] | string, ...values: any[]): HTMLTemplateBuilder {
+  if(typeof tokens === "string") {
+    [tokens, values] = tplParseString(tokens);
+    values = values.map((scriptStr) => {
+      const func = new Function(`return ${scriptStr};`);
+      return func();
+    });
+  }
   return new HTMLTemplateBuilder(tokens, values);
 }
 
@@ -129,8 +168,8 @@ class HTMLTemplateBuilder {
           html.push(result);
         }
       }
-      return html.join("");
     }
+    return html.join("");
   }
 }
 
