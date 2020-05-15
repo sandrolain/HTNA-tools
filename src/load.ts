@@ -1,11 +1,11 @@
 
 // TODO: test
 // TODO: docs
-export function loadScript (url: string): Promise<string> {
+export function loadScript (url: string): Promise<HTMLScriptElement> {
   return new Promise((resolve, reject) => {
     const node = document.createElement("script");
     node.addEventListener("load", () => {
-      resolve(url);
+      resolve(node);
     });
     node.addEventListener("error", () => {
       const error = new URIError(`The script "${url}" didn't load correctly.`);

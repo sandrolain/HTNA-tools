@@ -83,7 +83,7 @@ export default class Color {
     s /= 100;
     l /= 100;
 
-    if(s == 0) {
+    if(s === 0) {
       r = g = b = l;
     } else {
 

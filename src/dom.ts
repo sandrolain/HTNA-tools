@@ -1,6 +1,4 @@
 import { forEach } from "./iterable";
-import { getDescendantProp } from "./object";
-import { htmlEntitiesDecode } from "./html";
 
 export type ElementAttributesMap = Map<string, any> | Record<string, any>;
 export type ElementChildrenArray = (Node | string | ElementParamsArray)[];
@@ -84,7 +82,7 @@ export function $$<T=HTMLElement> (selector: string, targetElement: Document | H
 
 // TODO: test
 // TODO: docs
-export function at (selector: string | HTMLElement, eventName: string, listener: EventListenerOrEventListenerObject): boolean {
+export function on (selector: string | HTMLElement, eventName: string, listener: EventListenerOrEventListenerObject): boolean {
   const node = (typeof selector === "string") ? $(selector) : selector;
   if(node) {
     node.addEventListener(eventName, listener);
@@ -96,134 +94,85 @@ export function at (selector: string | HTMLElement, eventName: string, listener:
 
 // TODO: test
 // TODO: docs
-export function tplParseString (tpl: string): [string[], any[]] {
-  const strings = [];
-  const args = [];
-  let index = tpl.indexOf("${");
-  while(index > -1) {
-    let scopeNum = 0;
-    const str = tpl.substring(0, index);
-    strings.push(str);
-    tpl = tpl.substring(index + 2);
-    for(let i = 0, len = tpl.length; i < len; i++) {
-      const cha = tpl[i];
-      if(cha === "}") {
-        if(scopeNum === 0) {
-          const arg = tpl.substring(0, i);
-          args.push(htmlEntitiesDecode(arg));
-          tpl = tpl.substring(i + 1);
-          break;
-        }
-        scopeNum--;
-      } else if(cha === "{") {
-        scopeNum++;
+export function byTagName (targetNode: Element, tagName: string): Element[] {
+  return Array.from(targetNode.getElementsByTagName(tagName));
+}
+
+
+export function createFragment (...nodes: Node[]): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  for(const node of nodes) {
+    fragment.appendChild(node);
+  }
+  return fragment;
+}
+
+export function append (targetNode: Element, ...nodes: Node[]): void {
+  targetNode.appendChild(createFragment(...nodes));
+}
+
+export function prepend (targetNode: Element, ...nodes: Node[]): void {
+  const fragment = createFragment(...nodes);
+  if(targetNode.firstChild) {
+    targetNode.insertBefore(fragment, targetNode.firstChild);
+  } else {
+    targetNode.appendChild(fragment);
+  }
+}
+
+export function insertBefore (targetNode: Node, ...nodes: Node[]): void {
+  targetNode.parentNode.insertBefore(createFragment(...nodes), targetNode);
+}
+
+export function insertAfter (targetNode: Node, ...nodes: Node[]): void {
+  const fragment = createFragment(...nodes);
+  if(targetNode.nextSibling) {
+    targetNode.parentNode.insertBefore(fragment, targetNode.nextSibling);
+  } else {
+    targetNode.parentNode.appendChild(fragment);
+  }
+}
+
+export function removeNode (targetNode: Node): void {
+  targetNode.parentNode.removeChild(targetNode);
+}
+
+export function removeChildren (targetNode: Element): void {
+  targetNode.innerHTML = "";
+}
+
+export function getNext (targetNode: Element): Element {
+  let nextNode = targetNode.nextSibling;
+  if(nextNode) {
+    do {
+      if(nextNode instanceof Element) {
+        return nextNode;
       }
-    }
-    index = tpl.indexOf("${");
+    } while((nextNode = nextNode.nextSibling));
   }
-  strings.push(tpl);
-  return [strings, args];
+  return null;
 }
 
-// TODO: test
-// TODO: docs
-export function tpl (tokens: string[] | string, ...values: any[]): HTMLTemplateBuilder {
-  if(typeof tokens === "string") {
-    [tokens, values] = tplParseString(tokens);
-    values = values.map((scriptStr) => {
-      const func = new Function(`return ${scriptStr};`);
-      return func();
-    });
-  }
-  return new HTMLTemplateBuilder(tokens, values);
-}
-
-class HTMLTemplateBuilder {
-  constructor (private tokens: string[], private values: any[]) {}
-
-  template (vars = {}): HTMLTemplateElement {
-    const html = this.html(vars);
-    const node = document.createElement("template");
-    node.innerHTML = html;
-    return node;
-  }
-
-  html (vars: Record<string | number, any> = {}): string  {
-    const html = [];
-    const len = this.tokens.length;
-    for(let i = 0; i < len; i++) {
-      html.push(this.tokens[i]);
-      const value = this.values[i];
-      if(value !== null && value !== undefined) {
-        const type: string = typeof value;
-        let result;
-        if(type === "function") {
-          result = value(vars);
-        } else if(type === "number") {
-          result = vars[value];
-        } else if(type === "string") {
-          result = getDescendantProp(vars, value);
-        }
-        if(result !== null && result !== undefined) {
-          html.push(result);
-        }
+export function getPrevious (targetNode: Element): Element {
+  let prevNode = targetNode.previousSibling;
+  if(prevNode) {
+    do {
+      if(prevNode instanceof Element) {
+        return prevNode;
       }
-    }
-    return html.join("");
+    } while((prevNode = prevNode.previousSibling));
   }
+  return null;
 }
 
-// TODO: test
-// TODO: docs
-export const byTagName = ($node: Element, tagName: string): Element[] => {
-  return Array.from($node.getElementsByTagName(tagName));
-};
 
 // TODO: test
 // TODO: docs
-export const removeNode = ($node: Node): void => {
-  if($node.parentNode) {
-    $node.parentNode.removeChild($node);
-  }
-};
+export function replaceNode (targetNode: Node, ...nodes: Node[]): void {
+  insertBefore(targetNode, ...nodes);
+  removeNode(targetNode);
+}
 
-// TODO: test
-// TODO: docs
-export const removeNodes = ($$nodes: Node[]): void => {
-  for(const $node of $$nodes) {
-    removeNode($node);
-  }
-};
-
-// TODO: test
-// TODO: docs
-export const insertNodeBefore = ($node: Node, $dest: Node): void => {
-  if($dest.parentNode) {
-    $dest.parentNode.insertBefore($node, $dest);
-  }
-};
-
-// TODO: test
-// TODO: docs
-export const insertNodesBefore = ($$nodes: Node[], $dest: Node): void => {
-  for(const $node of $$nodes) {
-    insertNodeBefore($node, $dest);
-  }
-};
-
-// TODO: test
-// TODO: docs
-export const replaceWithNode = ($dest: Node, $node: Node): void => {
-  insertNodeBefore($node, $dest);
-  removeNode($dest);
-};
-
-// TODO: test
-// TODO: docs
-export const replaceWithNodes = ($dest: Node, $$nodes: Node[]): void => {
-  insertNodesBefore($$nodes, $dest);
-  removeNode($dest);
-};
 
 // TODO: test
 // TODO: docs
@@ -271,4 +220,25 @@ export function getTemplateNodeFromHTML (html: string): HTMLTemplateElement {
 // TODO: docs
 export function getFragmentFromHTML (html: string): DocumentFragment {
   return getTemplateNodeFromHTML(html).content.cloneNode(true) as DocumentFragment;
+}
+
+
+// TODO: test
+// TODO: docs
+export function onDocumentReady (callback: () => void): void {
+  if(["complete", "loaded", "interactive"].includes(document.readyState)) {
+    callback.call(document);
+  } else {
+    document.addEventListener("DOMContentLoaded", callback);
+  }
+}
+
+// TODO: test
+// TODO: docs
+export function onDocumentLoad (callback: () => void): void {
+  if(["complete"].includes(document.readyState)) {
+    callback.call(document);
+  } else {
+    window.addEventListener("load", callback);
+  }
 }

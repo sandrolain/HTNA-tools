@@ -15,3 +15,28 @@ export function getDescendantProp (obj: Record<any, any>, desc: string): any {
   }
   return obj;
 }
+
+
+export function watch<T=any> (object: Record<string | number, T>, callback: (propertyName: string | number) => void): ProxyHandler<Record<string | number, T>> {
+  const handler = {
+    get (target: Record<string | number, T>, property: string | number, receiver: any): any {
+      if(typeof target === "object") {
+        try {
+          return new Proxy(target[property] as unknown as Record<string | number, T>, handler);
+        } catch(err) {
+          err;
+        }
+      }
+      return Reflect.get(target, property, receiver);
+    },
+    defineProperty (target: Record<string | number, T>, property: string | number, descriptor: PropertyDescriptor): boolean {
+      callback(property);
+      return Reflect.defineProperty(target, property, descriptor);
+    },
+    deleteProperty (target: Record<string | number, T>, property: string | number): boolean {
+      callback(property);
+      return Reflect.deleteProperty(target, property);
+    }
+  };
+  return new Proxy(object, handler);
+}
