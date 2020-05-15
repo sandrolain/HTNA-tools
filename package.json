@@ -1,29 +1,29 @@
 {
-  "name": "web-tools",
-  "version": "0.0.1",
-  "description": "Web Tools",
+  "name": "htna-tools",
+  "version": "0.1.0",
+  "description": "Functions collections for web applications",
   "author": "Sandro Lain",
   "main": "dist/umd/index.js",
+  "browser": "dist/umd/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/umd/index.d.ts",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "dist/cjs/*",
     "dist/esm/*",
     "dist/umd/*"
   ],
   "scripts": {
-    "prepare": "npm run build",
     "build": "npx rollup -c",
     "watch": "npx rollup -cw",
+    "prepare": "npm run build",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
     "test:coverage:open": "jest --runInBand --coverage && open ./coverage/lcov-report/index.html",
-    "docs:build": "npx typedoc --plugin typedoc-plugin-no-inherit --out ./typedocs ./src",
-    "docs:serve": "npm run docs:build && npx open-cli ./typedocs/index.html"
+    "docs:build": "npx typedoc ./src",
+    "docs:serve": "npm run docs:build && npx open-cli ./docs/typedocs/index.html"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sandrolain/slot.git"
+    "url": "git+https://github.com/sandrolain/HTNA-tools.git"
   },
   "keywords": [
     "tools",
@@ -32,7 +32,9 @@
     "module",
     "html",
     "DOM",
-    "CSS"
+    "CSS",
+    "form",
+    "fetch"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -44,7 +46,6 @@
     "eslint": "^6.8.0",
     "happy-dom": "^0.12.1",
     "jest": "^25.5.0",
-    "jest-environment-happy-dom": "0.0.41",
     "live-server": "^1.2.1",
     "open-cli": "^6.0.1",
     "rollup": "^2.7.3",

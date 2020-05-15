@@ -1,1 +1,3 @@
-# SLOT: Light custom elements library
+# HTNA tools
+
+## Functions collections for web applications

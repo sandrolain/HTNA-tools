@@ -30,19 +30,23 @@ export default [
   {
     input: {
       index: "src/index.ts",
+      // single
+      array: "src/array.ts",
+      color: "src/color.ts",
       cookie: "src/cookie.ts",
       css: "src/css.ts",
       dom: "src/dom.ts",
-      netw: "src/netw.ts",
-      iterable: "src/iterable.ts",
-      string: "src/string.ts",
-      html: "src/html.ts",
-      load: "src/load.ts",
-      object: "src/object.ts",
-      array: "src/array.ts",
       file: "src/file.ts",
       form: "src/form.ts",
+      html: "src/html.ts",
+      iterable: "src/iterable.ts",
+      load: "src/load.ts",
+      netw: "src/netw.ts",
+      number: "src/number.ts",
+      object: "src/object.ts",
       regexp: "src/regexp.ts",
+      script: "src/script.ts",
+      string: "src/string.ts",
       worker: "src/worker.ts"
     },
     output: [
