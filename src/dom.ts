@@ -98,7 +98,8 @@ export function byTagName (targetNode: Element, tagName: string): Element[] {
   return Array.from(targetNode.getElementsByTagName(tagName));
 }
 
-
+// TODO: test
+// TODO: docs
 export function createFragment (...nodes: Node[]): DocumentFragment {
   const fragment = document.createDocumentFragment();
   for(const node of nodes) {
@@ -107,10 +108,14 @@ export function createFragment (...nodes: Node[]): DocumentFragment {
   return fragment;
 }
 
+// TODO: test
+// TODO: docs
 export function append (targetNode: Element, ...nodes: Node[]): void {
   targetNode.appendChild(createFragment(...nodes));
 }
 
+// TODO: test
+// TODO: docs
 export function prepend (targetNode: Element, ...nodes: Node[]): void {
   const fragment = createFragment(...nodes);
   if(targetNode.firstChild) {
@@ -120,10 +125,14 @@ export function prepend (targetNode: Element, ...nodes: Node[]): void {
   }
 }
 
+// TODO: test
+// TODO: docs
 export function insertBefore (targetNode: Node, ...nodes: Node[]): void {
   targetNode.parentNode.insertBefore(createFragment(...nodes), targetNode);
 }
 
+// TODO: test
+// TODO: docs
 export function insertAfter (targetNode: Node, ...nodes: Node[]): void {
   const fragment = createFragment(...nodes);
   if(targetNode.nextSibling) {
@@ -133,14 +142,20 @@ export function insertAfter (targetNode: Node, ...nodes: Node[]): void {
   }
 }
 
+// TODO: test
+// TODO: docs
 export function removeNode (targetNode: Node): void {
   targetNode.parentNode.removeChild(targetNode);
 }
 
+// TODO: test
+// TODO: docs
 export function removeChildren (targetNode: Element): void {
   targetNode.innerHTML = "";
 }
 
+// TODO: test
+// TODO: docs
 export function getNext (targetNode: Element): Element {
   let nextNode = targetNode.nextSibling;
   if(nextNode) {
@@ -153,6 +168,8 @@ export function getNext (targetNode: Element): Element {
   return null;
 }
 
+// TODO: test
+// TODO: docs
 export function getPrevious (targetNode: Element): Element {
   let prevNode = targetNode.previousSibling;
   if(prevNode) {
@@ -241,4 +258,25 @@ export function onDocumentLoad (callback: () => void): void {
   } else {
     window.addEventListener("load", callback);
   }
+}
+
+// TODO: test
+// TODO: docs
+export function getShadow (target: Element, init: ShadowRootInit = { mode: "open", delegatesFocus: true }): ShadowRoot {
+  return target.shadowRoot || target.attachShadow(init);
+}
+
+// TODO: test
+// TODO: docs
+export function setShadowHTML (target: Element, html: string): void {
+  const shadow = getShadow(target);
+  shadow.innerHTML = html;
+}
+
+// TODO: test
+// TODO: docs
+export function appendToShadow (target: Element, ...nodes: Node[]): void {
+  const shadow = getShadow(target);
+  const fragment = createFragment(...nodes);
+  shadow.appendChild(fragment);
 }
