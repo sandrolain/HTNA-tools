@@ -91,13 +91,25 @@ export function endOfDay (date: Date): Date {
 // TODO: test
 // TODO: docs
 export function minDate (...dates: Date[]): Date {
-  return new Date(dates.sort((a, b) => (a.getTime() - b.getTime())).shift());
+  return new Date(dates.sort((a, b) => (a.getTime() - b.getTime())).shift().getTime());
 }
 
 // TODO: test
 // TODO: docs
 export function maxDate (...dates: Date[]): Date {
-  return new Date(dates.sort((a, b) => (a.getTime() - b.getTime())).pop());
+  return new Date(dates.sort((a, b) => (a.getTime() - b.getTime())).pop().getTime());
+}
+
+// TODO: test
+// TODO: docs
+export function boundDate (date: Date, minDate: Date, maxDate: Date): Date {
+  if(date.getTime() < minDate.getTime()) {
+    return new Date(minDate.getTime());
+  }
+  if(date.getTime() > maxDate.getTime()) {
+    return new Date(maxDate.getTime());
+  }
+  return new Date(date);
 }
 
 // TODO: test
