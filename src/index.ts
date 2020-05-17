@@ -2,6 +2,7 @@ export * from "./array";
 export * from "./color";
 export * from "./cookie";
 export * from "./css";
+export * from "./date";
 export * from "./dom";
 export * from "./file";
 export * from "./form";

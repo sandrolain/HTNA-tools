@@ -35,6 +35,7 @@ export default [
       color: "src/color.ts",
       cookie: "src/cookie.ts",
       css: "src/css.ts",
+      date: "src/date.ts",
       dom: "src/dom.ts",
       file: "src/file.ts",
       form: "src/form.ts",
