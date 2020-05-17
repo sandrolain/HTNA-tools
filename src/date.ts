@@ -151,3 +151,17 @@ export function addDate (date: Date, mod: Day): Date {
   date.setDate(date.getDate() + day);
   return date;
 }
+
+// TODO: test
+// TODO: docs
+export function dateString (date: Date): string {
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+}
+
+// TODO: test
+// TODO: docs
+export function timeString (date: Date, seconds: boolean = false, millis: boolean = false): string {
+  return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}${
+    seconds ? `:${date.getSeconds().toString().padStart(2, "0")}${
+      millis ? `.${date.getMilliseconds().toString().padStart(9, "0")}` : ""}` : ""}`;
+}
