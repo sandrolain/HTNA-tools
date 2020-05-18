@@ -56,6 +56,20 @@ export function parseTime (time: Time): [number, number, number, number] {
 
 // TODO: test
 // TODO: docs
+export function timeFrom (source: Time): Date {
+  const [hours, minutes, seconds, millis] = parseTime(source);
+  const date = new Date();
+  if(hours > 0 || minutes > 0 || seconds > 0 || millis > 0) {
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    date.setSeconds(seconds);
+    date.setMilliseconds(millis);
+  }
+  return date;
+}
+
+// TODO: test
+// TODO: docs
 export function setTime (date: Date, time: Time): Date {
   const [hours, minutes, seconds, millis] = parseTime(time);
   date.setHours(hours);
@@ -135,6 +149,19 @@ export function parseDate (day: Day): [number, number, number] {
     }
   }
   return [year, month, date];
+}
+
+// TODO: test
+// TODO: docs
+export function dateFrom (source: Day): Date {
+  const [year, month, day] = parseDate(source);
+  const date = new Date();
+  if(year > 0 || month > 0 || day > 0) {
+    date.setFullYear(year);
+    date.setMonth(month - 1);
+    date.setDate(day);
+  }
+  return date;
 }
 
 
