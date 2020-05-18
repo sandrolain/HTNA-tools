@@ -151,6 +151,7 @@ export function parseDate (day: Day): [number, number, number] {
   return [year, month, date];
 }
 
+
 // TODO: test
 // TODO: docs
 export function dateFrom (source: Day): Date {
@@ -161,6 +162,16 @@ export function dateFrom (source: Day): Date {
     date.setMonth(month - 1);
     date.setDate(day);
   }
+  return date;
+}
+
+// TODO: test
+// TODO: docs
+export function setDate (date: Date, source: Day): Date {
+  const [year, month, day] = parseDate(source);
+  date.setFullYear(year);
+  date.setMonth(month - 1);
+  date.setDate(day);
   return date;
 }
 
