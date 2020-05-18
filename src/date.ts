@@ -81,13 +81,35 @@ export function setTime (date: Date, time: Time): Date {
 
 // TODO: test
 // TODO: docs
-export function modTime (date: Date, time: Time): Date {
-  const [hours, minutes, seconds, millis] = parseTime(time);
+export function modTime (date: Date, source: Time): Date {
+  const [hours, minutes, seconds, millis] = parseTime(source);
   date.setHours(date.getHours() + hours);
   date.setMinutes(date.getMinutes() + minutes);
   date.setSeconds(date.getSeconds() + seconds);
   date.setMilliseconds(date.getMilliseconds() + millis);
   return date;
+}
+
+// TODO: test
+// TODO: docs
+export function millisOfTheDay (source: Time): number {
+  const [hours, minutes, seconds, millis] = parseTime(source);
+  return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + millis;
+}
+
+// TODO: test
+// TODO: docs
+export function boundTime (date: Date, minTime: Time, maxTime: Time): Date {
+  const dateMotd = millisOfTheDay(date);
+  const minMotd  = millisOfTheDay(minTime);
+  const maxMotd  = millisOfTheDay(maxTime);
+  const result   = new Date(date);
+  if(dateMotd < minMotd) {
+    setTime(date, minMotd);
+  } else if(dateMotd > maxMotd) {
+    setTime(date, maxMotd);
+  }
+  return result;
 }
 
 // TODO: test
