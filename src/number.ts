@@ -14,3 +14,10 @@ export function formatNumber (value: number, precision: number = 0, decSep: stri
 
   return fixed;
 }
+
+
+// TODO: docs
+// TODO: test
+export function bound (value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
