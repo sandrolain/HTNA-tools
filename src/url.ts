@@ -3,7 +3,7 @@ export type PathParams = Record<string, string>;
 export type PathMatcherFunction = (path: string) => PathParams | false;
 export type PathApplierFunction = (params: PathParams) => string;
 
-export function getPathMatcher (matchPath: string): PathMatcherFunction {
+export function getPathMatcher (matchPath: string, caseInsensitive: boolean = false): PathMatcherFunction {
   if(matchPath.indexOf(":") < 0) {
     return (path: string): PathParams | false => {
       return (path === matchPath) ? {} : false;
@@ -18,7 +18,7 @@ export function getPathMatcher (matchPath: string): PathMatcherFunction {
       return "([^\\/]+)";
     }).replace(/\//g, "\\/");
 
-  const pathRegExp = new RegExp(`^${pathRegExpString}$`);
+  const pathRegExp = new RegExp(`^${pathRegExpString}$`, (caseInsensitive ? "i" : null));
 
   return (path: string): PathParams | false => {
     const match = path.match(pathRegExp);
