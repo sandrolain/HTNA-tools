@@ -24,7 +24,7 @@ describe("dom", () => {
       create("strong", null, ["Bold text"])
     ]);
     expect(node).toBeInstanceOf(HTMLElement);
-    expect(node.outerHTML).toEqual(`<div>Simple text and<br /><strong>Bold text</strong></div>`);
+    expect(node.outerHTML).toEqual(`<div>Simple text and<br><strong>Bold text</strong></div>`);
   });
 
   test("create() with attributes and children", async () => {
@@ -37,7 +37,7 @@ describe("dom", () => {
       ["strong", null, ["Bold text"]]
     ]);
     expect(node).toBeInstanceOf(HTMLElement);
-    expect(node.outerHTML).toEqual(`<div style="border: 1px solid #FF0000; padding: 1em" title="My new div element">Simple text and<br /><strong>Bold text</strong></div>`);
+    expect(node.outerHTML).toEqual(`<div style="border: 1px solid #FF0000; padding: 1em" title="My new div element">Simple text and<br><strong>Bold text</strong></div>`);
   });
 
 });

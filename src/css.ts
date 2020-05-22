@@ -134,8 +134,11 @@ export function getPropertiesString (rules: Record<string, any>): string {
   return temp.join("\n");
 }
 
-// TODO: docs
-// TODO: test
+/**
+ * Gets the contents of an external style sheet and resolves the imports by incorporating the source
+ * @param url The url of the external style sheet
+ * @param init *RequestInit* parameters for fetch requests
+ */
 export async function fetchStyleImports (url: string, init?: RequestInit): Promise<string> {
   let source = await fetchText(url, init);
   const importRegExp = /@import\s+(?:url\()?['"]?([^'"]+)['"]?\)?;?/gi;

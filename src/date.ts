@@ -1,24 +1,25 @@
-// TODO: docs
+/** Accepted Date Day representation value types */
 export type Day = Date | string | [number, number, number];
 
-// TODO: docs
+/** Accepted Date Time representation value types */
 export type Time = Date | string | number | [number, number, number, number];
 
-// TODO: test
-// TODO: docs
-export const TIME_REGEXP = /^([0-2][0-9]):([0-5][0-9])(?::([0-5][0-9])(?:\.([0-9]+))?)?$/;
+/** Regular expression for time representation strings in ISO format */
+export const TIME_REGEXP = /^([0-1][0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9])(?:\.([0-9]{3}))?)?$/;
 
-// TODO: test
-// TODO: docs
-export const DATE_REGEXP = /^([0-9]{4})-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])$/;
+/** Regular expression for date day representation strings in ISO format */
+export const DATE_REGEXP = /^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
 
-// TODO: test
 // TODO: docs
 export function isTimeString (time: string): boolean {
   return !!time.match(TIME_REGEXP);
 }
 
-// TODO: test
+// TODO: docs
+export function isDateString (date: string): boolean {
+  return !!date.match(DATE_REGEXP);
+}
+
 // TODO: docs
 export function parseTime (time: Time): [number, number, number, number] {
   let hours   = 0;
@@ -45,8 +46,8 @@ export function parseTime (time: Time): [number, number, number, number] {
   } else if(typeof time === "string") {
     const match = time.match(TIME_REGEXP);
     if(match) {
-      hours   = parseInt(match[1] || "0", 10);
-      minutes = parseInt(match[2] || "0", 10);
+      hours   = parseInt(match[1], 10);
+      minutes = parseInt(match[2], 10);
       seconds = parseInt(match[3] || "0", 10);
       millis  = parseInt(match[4] || "0", 10);
     }
@@ -54,7 +55,6 @@ export function parseTime (time: Time): [number, number, number, number] {
   return [hours, minutes, seconds, millis];
 }
 
-// TODO: test
 // TODO: docs
 export function timeFrom (source: Time): Date {
   const [hours, minutes, seconds, millis] = parseTime(source);
@@ -68,7 +68,6 @@ export function timeFrom (source: Time): Date {
   return date;
 }
 
-// TODO: test
 // TODO: docs
 export function setTime (date: Date, time: Time): Date {
   const [hours, minutes, seconds, millis] = parseTime(time);
@@ -79,10 +78,9 @@ export function setTime (date: Date, time: Time): Date {
   return date;
 }
 
-// TODO: test
 // TODO: docs
-export function modTime (date: Date, source: Time): Date {
-  const [hours, minutes, seconds, millis] = parseTime(source);
+export function modTime (date: Date, source: [number, number, number, number]): Date {
+  const [hours, minutes, seconds, millis] = source;
   date.setHours(date.getHours() + hours);
   date.setMinutes(date.getMinutes() + minutes);
   date.setSeconds(date.getSeconds() + seconds);
@@ -90,7 +88,6 @@ export function modTime (date: Date, source: Time): Date {
   return date;
 }
 
-// TODO: test
 // TODO: docs
 export function millisOfTheDay (source: Time): number {
   const [hours, minutes, seconds, millis] = parseTime(source);
@@ -156,7 +153,7 @@ export function parseDate (day: Day): [number, number, number] {
   let date  = 0;
   if(day instanceof Date) {
     year  = day.getFullYear();
-    month = day.getMonth();
+    month = day.getMonth() + 1;
     date  = day.getDate();
   } else if(day instanceof Array) {
     year  = day[0] || 0;
@@ -165,9 +162,9 @@ export function parseDate (day: Day): [number, number, number] {
   } else if(typeof day === "string") {
     const match = day.match(DATE_REGEXP);
     if(match) {
-      year  = parseInt(match[1] || "0", 10);
-      month = parseInt(match[2] || "0", 10);
-      date  = parseInt(match[3] || "0", 10);
+      year  = parseInt(match[1], 10);
+      month = parseInt(match[2], 10);
+      date  = parseInt(match[3], 10);
     }
   }
   return [year, month, date];

@@ -48,6 +48,7 @@ export default [
       regexp: "src/regexp.ts",
       script: "src/script.ts",
       string: "src/string.ts",
+      url: "src/url.ts",
       worker: "src/worker.ts"
     },
     output: [

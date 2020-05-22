@@ -239,6 +239,23 @@ export function getFragmentFromHTML (html: string): DocumentFragment {
   return getTemplateNodeFromHTML(html).content.cloneNode(true) as DocumentFragment;
 }
 
+// Sizes
+
+export function getElementRect (node: Element): DOMRect {
+  return node.getBoundingClientRect();
+}
+
+export function getPositionRespectTarget (node: Element, nodeX: number, nodeY: number, target: Element, targetX: number, targetY: number): { width: number; height: number; left: number; top: number; right: number; bottom: number } {
+  const nodeRect   = node.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const left       = targetRect.left + (targetRect.width * targetX) - (nodeRect.width * nodeX);
+  const top        = targetRect.top + (targetRect.height * targetY) - (nodeRect.height * nodeY);
+  const right      = left + nodeRect.width;
+  const bottom     = top + nodeRect.height;
+  return { width: nodeRect.width, height: nodeRect.height, left, top, bottom, right };
+}
+
+// Events
 
 // TODO: test
 // TODO: docs
@@ -259,6 +276,8 @@ export function onDocumentLoad (callback: () => void): void {
     window.addEventListener("load", callback);
   }
 }
+
+// Shadow DOM
 
 // TODO: test
 // TODO: docs
