@@ -32,6 +32,8 @@ export default [
       index: "src/index.ts",
       // single
       array: "src/array.ts",
+      audio: "src/audio.ts",
+      clipboard: "src/clipboard.ts",
       color: "src/color.ts",
       cookie: "src/cookie.ts",
       css: "src/css.ts",

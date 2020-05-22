@@ -1,11 +1,20 @@
 
+// TODO: docs
 export type PathParams = Record<string, string>;
+
+// TODO: docs
 export type PathMatcherFunction = (path: string) => PathParams | false;
+
+// TODO: docs
 export type PathApplierFunction = (params: PathParams) => string;
 
+// TODO: docs
 export function getPathMatcher (matchPath: string, caseInsensitive: boolean = false): PathMatcherFunction {
   if(matchPath.indexOf(":") < 0) {
     return (path: string): PathParams | false => {
+      if(caseInsensitive) {
+        return (path.toLowerCase() === matchPath.toLowerCase()) ? {} : false;
+      }
       return (path === matchPath) ? {} : false;
     };
   }
@@ -18,7 +27,7 @@ export function getPathMatcher (matchPath: string, caseInsensitive: boolean = fa
       return "([^\\/]+)";
     }).replace(/\//g, "\\/");
 
-  const pathRegExp = new RegExp(`^${pathRegExpString}$`, (caseInsensitive ? "i" : null));
+  const pathRegExp = new RegExp(`^${pathRegExpString}$`, (caseInsensitive ? "i" : undefined));
 
   return (path: string): PathParams | false => {
     const match = path.match(pathRegExp);
@@ -45,7 +54,7 @@ export function getPathMatcher (matchPath: string, caseInsensitive: boolean = fa
   };
 }
 
-
+// TODO: docs
 export function getPathParamsApplier (matchPath: string): PathApplierFunction {
   if(!matchPath || (matchPath.indexOf(":") < 0 && matchPath.indexOf("*") < 0)) {
     return (): string => matchPath;
