@@ -277,6 +277,30 @@ export function onDocumentLoad (callback: () => void): void {
   }
 }
 
+// TODO: test
+// TODO: docs
+export function dispatchEvent (node: Element, name: string, detail?: any, bubbles: boolean = false): boolean {
+  const event = new CustomEvent(name, {
+    detail,
+    bubbles,
+    composed: true,
+    cancelable: true
+  });
+  return node.dispatchEvent(event);
+}
+
+export function delegateListener (node: Element, type: string, delegatedSelector: string, listener: (event: Event) => void, options?: AddEventListenerOptions): void {
+  node.addEventListener(type, (event: Event) => {
+    const eventTarget = event.target as HTMLElement;
+    for(const targetItem of Array.from(document.querySelectorAll(delegatedSelector)).reverse()) {
+      if(targetItem.contains(eventTarget)) {
+        listener.call(targetItem, event);
+      }
+    }
+  }, options);
+}
+
+
 // Shadow DOM
 
 // TODO: test
@@ -298,4 +322,22 @@ export function appendToShadow (target: Element, ...nodes: Node[]): void {
   const shadow = getShadow(target);
   const fragment = createFragment(...nodes);
   shadow.appendChild(fragment);
+}
+
+
+// requestAnimationFrame
+
+export function debounceWithAnimationFrame (callback: () => any): () => void {
+  let rafRequest: number = null;
+
+  return function (): number {
+    if(rafRequest) {
+      window.cancelAnimationFrame(rafRequest);
+    }
+    rafRequest = window.requestAnimationFrame(function (...args) {
+      rafRequest = null;
+      callback.call(this, ...args);
+    });
+    return rafRequest;
+  };
 }

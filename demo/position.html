@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      div {
+        border: 1px solid #999999;
+        padding: 20px;
+      }
+      #two {
+        position: fixed;
+        border-color: #F00;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="one"></div>
+    <div id="two"></div>
+    <script type="module">
+      import { getPositionRespectTarget, debounceWithAnimationFrame } from "../dist/esm/dom.js";
+
+      const update = debounceWithAnimationFrame(() => {
+        const $two = document.querySelector("#two");
+        const pos = getPositionRespectTarget(
+          document.querySelector("#two"),
+          0.5,
+          0,
+          document.querySelector("#one"),
+          0.75,
+          0
+        );
+        console.log(pos);
+        $two.style.left = `${pos.left}px`;
+        $two.style.top  = `${pos.top}px`;
+      });
+
+      window.addEventListener("resize", update)
+
+    </script>
+  </body>
+</html>

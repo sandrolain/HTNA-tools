@@ -9,6 +9,9 @@ export function createAudioContext (): AudioContext {
 // TODO: docs
 export async function loadAudio (context: AudioContext, url: string): Promise<AudioBuffer> {
   const response       = await fetch(url);
+  if(!response.ok) {
+    throw new Error(`Cannot load audio file "${url}"`);
+  }
   const responseBuffer = await response.arrayBuffer();
   return context.decodeAudioData(responseBuffer);
 }
