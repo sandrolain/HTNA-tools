@@ -13,7 +13,6 @@ export function htmlEntities (value: string): string {
 }
 
 // TODO: docs
-// TODO: test
 export function htmlEntitiesDecode (value: string): string {
   const textarea = document.createElement("textarea");
   textarea.innerHTML = value;

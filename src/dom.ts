@@ -1,7 +1,7 @@
 import { forEach } from "./iterable";
 
 export type ElementAttributesMap = Map<string, any> | Record<string, any>;
-export type ElementChildrenArray = (Node | string | ElementParamsArray)[];
+export type ElementChildrenArray = (Node | string | number | ElementParamsArray)[];
 export type ElementParamsArray   = [string, ElementAttributesMap?, ElementChildrenArray?, ElementCreationOptions?];
 
 /**
@@ -35,7 +35,7 @@ export type ElementParamsArray   = [string, ElementAttributesMap?, ElementChildr
  * @param targetDocument
  * @returns The new DOM HTMLElement node for the specified tag name
  */
-export function create<T=HTMLElement> (
+export function createElement<T=HTMLElement> (
   tagName: string,
   attributes?: ElementAttributesMap,
   children?: ElementChildrenArray,
@@ -60,7 +60,7 @@ export function create<T=HTMLElement> (
       } else if(child instanceof Node) {
         node.appendChild(child);
       } else if(Array.isArray(child)) {
-        child = create(child[0], child[1], child[2], child[3], targetDocument) as HTMLElement;
+        child = createElement(child[0], child[1], child[2], child[3], targetDocument) as HTMLElement;
         node.appendChild(child);
       }
     }
@@ -241,10 +241,14 @@ export function getFragmentFromHTML (html: string): DocumentFragment {
 
 // Sizes
 
+// TODO: test
+// TODO: docs
 export function getElementRect (node: Element): DOMRect {
   return node.getBoundingClientRect();
 }
 
+// TODO: test
+// TODO: docs
 export function getPositionRespectTarget (node: Element, nodeX: number, nodeY: number, target: Element, targetX: number, targetY: number): { width: number; height: number; left: number; top: number; right: number; bottom: number } {
   const nodeRect   = node.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
@@ -254,6 +258,25 @@ export function getPositionRespectTarget (node: Element, nodeX: number, nodeY: n
   const bottom     = top + nodeRect.height;
   return { width: nodeRect.width, height: nodeRect.height, left, top, bottom, right };
 }
+
+
+// Focus
+
+// TODO: test
+// TODO: docs
+export function getElementWithFocus (): Element {
+  return document.activeElement;
+}
+
+// TODO: test
+// TODO: docs
+export function hasFocusWithin (node: Element): boolean {
+  if(document.activeElement) {
+    return (node === document.activeElement || node.contains(document.activeElement));
+  }
+  return false;
+}
+
 
 // Events
 
@@ -340,4 +363,68 @@ export function debounceWithAnimationFrame (callback: () => any): () => void {
     });
     return rafRequest;
   };
+}
+
+
+// Snippet
+
+// TODO: test
+// TODO: docs
+export function createMetaViewport (options: {
+  width?: number | string;
+  initialScale?: number;
+  userScalabe?: boolean;
+  minimumScale?: number;
+  maximumScale?: number;
+} = {}): HTMLMetaElement {
+  const {
+    width = "device-width",
+    initialScale = 1.0,
+    userScalabe = true,
+    minimumScale,
+    maximumScale
+  } = options;
+  const meta = document.createElement("meta");
+  const content = `width=${width}${!userScalabe ? ", user-scalable=no" : ""}, initial-scale=${initialScale}${minimumScale ? `, minimum-scale${minimumScale}` : ""}${maximumScale ? `, maximum-scale${maximumScale}` : ""}`;
+  meta.setAttribute("name", "viewport");
+  meta.setAttribute("content", content);
+  return meta;
+}
+
+export function createStyle (content?: string): HTMLStyleElement {
+  const style = document.createElement("style");
+  style.setAttribute("type", "text/css");
+  if(content) {
+    style.appendChild(document.createTextNode(content));
+  }
+  return style;
+}
+
+export function createScript (options?: {
+  type?: string;
+  src?: string;
+  async?: boolean;
+  defer?: boolean;
+}, content?: string): HTMLScriptElement {
+  const {
+    type = "module",
+    src,
+    async = false,
+    defer = false
+  } = options;
+  const script = document.createElement("script");
+  script.setAttribute("type", type);
+  if(src) {
+    script.setAttribute("src", src);
+  }
+  if(async) {
+    script.setAttribute("async", "async");
+  }
+  if(defer) {
+    script.setAttribute("defer", "defer");
+  }
+  if(content) {
+    script.appendChild(document.createTextNode(content));
+  }
+  return script;
 }
