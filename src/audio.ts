@@ -7,13 +7,18 @@ export function createAudioContext (): AudioContext {
 
 // TODO: test
 // TODO: docs
+export function createAudioBuffer (context: AudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
+  return context.decodeAudioData(buffer);
+}
+
+// TODO: test
+// TODO: docs
 export async function loadAudio (context: AudioContext, url: string): Promise<AudioBuffer> {
   const response       = await fetch(url);
   if(!response.ok) {
     throw new Error(`Cannot load audio file "${url}"`);
   }
-  const responseBuffer = await response.arrayBuffer();
-  return context.decodeAudioData(responseBuffer);
+  return createAudioBuffer(context, await response.arrayBuffer());
 }
 
 // TODO: test
@@ -27,22 +32,13 @@ export function createAudioSource (context: AudioContext, buffer: AudioBuffer): 
 
 // TODO: test
 // TODO: docs
-export class AudioFromURL {
-  private audioBuffer: AudioBuffer;
+export class AudioItem {
   private audioSource: AudioBufferSourceNode;
 
   constructor (
     private context: AudioContext,
-    public readonly url: string
+    private audioBuffer: AudioBuffer
   ) {
-    this.load();
-  }
-
-  async load (): Promise<AudioBuffer> {
-    if(!this.audioBuffer) {
-      this.audioBuffer = await loadAudio(this.context, this.url);
-    }
-    return this.audioBuffer;
   }
 
   play (when: number = 0, offset: number = 0, duration?: number): void {
@@ -56,5 +52,15 @@ export class AudioFromURL {
     if(this.audioSource) {
       this.audioSource.stop();
     }
+  }
+
+  static async createFromURL (context: AudioContext, url: string): Promise<AudioItem> {
+    const audioBuffer = await loadAudio(context, url);
+    return new AudioItem(context, audioBuffer);
+  }
+
+  static async createFromArrayBuffer (context: AudioContext, buffer: ArrayBuffer): Promise<AudioItem> {
+    const audioBuffer = await createAudioBuffer(context, buffer);
+    return new AudioItem(context, audioBuffer);
   }
 }
