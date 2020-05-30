@@ -47,6 +47,7 @@ export default [
       netw: "src/netw.ts",
       number: "src/number.ts",
       object: "src/object.ts",
+      promise: "src/promise.ts",
       regexp: "src/regexp.ts",
       script: "src/script.ts",
       string: "src/string.ts",

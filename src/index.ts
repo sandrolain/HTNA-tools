@@ -14,6 +14,7 @@ export * from "./load";
 export * from "./netw";
 export * from "./number";
 export * from "./object";
+export * from "./promise";
 export * from "./regexp";
 export * from "./script";
 export * from "./string";
