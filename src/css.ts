@@ -157,3 +157,56 @@ export async function fetchStyleImports (url: string, init?: RequestInit): Promi
 export function formatStyleImport (url: string): string {
   return `@import url('${url}');`;
 }
+
+// TODO: docs
+// TODO: test
+export function setStyle (node: HTMLElement, style: Record<string, any>): void {
+  Object.assign(node.style, style);
+}
+
+// TODO: docs
+// TODO: test
+export function getStyle (node: HTMLElement, style: string | string[]): Record<string, string> {
+  const res: Record<string, string> = {};
+  const nodeStyle = node.style;
+  style = [].concat(style);
+  for(const name of style) {
+    res[name] = nodeStyle.getPropertyValue(name);
+  }
+  return res;
+}
+
+// TODO: docs
+// TODO: test
+export function getComputedStyle (node: Element, style: string | string[]): Record<string, string> {
+  const res: Record<string, string> = {};
+  const nodeStyle = window.getComputedStyle(node);
+  style = [].concat(style);
+  for(const name of style) {
+    res[name] = nodeStyle.getPropertyValue(name);
+  }
+  return res;
+}
+
+// TODO: docs
+// TODO: test
+export function getPseudoElementStyle (node: Element, pseudoElement: string, style: string | string[]): Record<string, string> {
+  const res: Record<string, string> = {};
+  const nodeStyle = window.getComputedStyle(node, pseudoElement);
+  style = [].concat(style);
+  for(const name of style) {
+    res[name] = nodeStyle.getPropertyValue(name);
+  }
+  return res;
+}
+
+// TODO: docs
+// TODO: test
+export function animateTo (node: Element, style: PropertyIndexedKeyframes, options: KeyframeAnimationOptions = {
+  duration: 300,
+  easing: "ease",
+  iterations: 1,
+  direction: "normal"
+}): Animation {
+  return node.animate(style, options);
+}
