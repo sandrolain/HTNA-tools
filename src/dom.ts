@@ -80,15 +80,41 @@ export function $$<T=HTMLElement> (selector: string, targetElement: Document | H
   return Array.from(targetElement.querySelectorAll(selector)) as unknown as T[];
 }
 
+
+export class EventListenerSubscription {
+  constructor (
+    private node: Window | Document | Element,
+    private eventName: string,
+    private listener: EventListenerOrEventListenerObject,
+    private options: boolean | AddEventListenerOptions
+  ) {
+    node.addEventListener(eventName, listener, options);
+  }
+
+  unsubscribe (): void {
+    this.node.removeEventListener(this.eventName, this.listener, this.options);
+  }
+}
+
 // TODO: test
 // TODO: docs
-export function on (selector: string | HTMLElement, eventName: string, listener: EventListenerOrEventListenerObject): boolean {
+export function addEventListener (selector: string | Window | Document | Element, eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): EventListenerSubscription | false {
   const node = (typeof selector === "string") ? $(selector) : selector;
-  if(node) {
-    node.addEventListener(eventName, listener);
-    return true;
-  }
-  return false;
+  return node ? new EventListenerSubscription(node, eventName, listener, options) : false;
+}
+
+
+// TODO: test
+// TODO: docs
+export function delegateEventListener (node: string | Window | Document | Element, eventName: string, delegatedSelector: string, listener: (event: Event) => void, options?: AddEventListenerOptions): EventListenerSubscription | false {
+  return addEventListener(node, eventName, (event: Event) => {
+    const eventTarget = event.target as HTMLElement;
+    for(const targetItem of Array.from(document.querySelectorAll(delegatedSelector)).reverse()) {
+      if(targetItem.contains(eventTarget)) {
+        listener.call(targetItem, event);
+      }
+    }
+  }, options);
 }
 
 
@@ -310,17 +336,6 @@ export function dispatchEvent (node: Element, name: string, detail?: any, bubble
     cancelable: true
   });
   return node.dispatchEvent(event);
-}
-
-export function delegateListener (node: Element, type: string, delegatedSelector: string, listener: (event: Event) => void, options?: AddEventListenerOptions): void {
-  node.addEventListener(type, (event: Event) => {
-    const eventTarget = event.target as HTMLElement;
-    for(const targetItem of Array.from(document.querySelectorAll(delegatedSelector)).reverse()) {
-      if(targetItem.contains(eventTarget)) {
-        listener.call(targetItem, event);
-      }
-    }
-  }, options);
 }
 
 
