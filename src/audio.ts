@@ -42,9 +42,8 @@ export class AudioItem {
   }
 
   play (when: number = 0, offset: number = 0, duration?: number): void {
-    if(!this.audioSource) {
-      this.audioSource = createAudioSource(this.context, this.audioBuffer);
-    }
+    this.stop();
+    this.audioSource = createAudioSource(this.context, this.audioBuffer);
     this.audioSource.start(when, offset, duration);
   }
 
