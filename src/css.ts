@@ -1,4 +1,4 @@
-import { hyphenate } from "./string";
+import { hyphenate, camelCase } from "./string";
 import { fetchText } from "./netw";
 
 const numberOnlyProperties: Record<string, boolean> = {
@@ -126,12 +126,23 @@ export function serializeStyleStructure (obj: Record<string, any>, parentKey: st
 
 // TODO: docs
 // TODO: test
-export function getPropertiesString (rules: Record<string, any>): string {
+export function getPropertiesAsString (rules: Record<string, any>): string {
   const temp: string[] = [];
   for(const prop in rules) {
     temp.push(processPropertyValueAsString(prop, rules[prop]));
   }
   return temp.join("\n");
+}
+
+// TODO: docs
+// TODO: test
+export function parsePropertiesString (rules: string): Record<string, any> {
+  const res: Record<string, any> = {};
+  for(const item of rules.split(";")) {
+    const [name, value] = item.split(":");
+    res[camelCase(name.trim())] = value.trim();
+  }
+  return res;
 }
 
 /**
@@ -160,7 +171,10 @@ export function formatStyleImport (url: string): string {
 
 // TODO: docs
 // TODO: test
-export function setStyle (node: HTMLElement, style: Record<string, any>): void {
+export function setStyle (node: HTMLElement, style: Record<string, any> | string): void {
+  if(typeof style === "string") {
+    style = parsePropertiesString(style);
+  }
   Object.assign(node.style, style);
 }
 
@@ -178,7 +192,7 @@ export function getStyle (node: HTMLElement, style: string | string[]): Record<s
 
 // TODO: docs
 // TODO: test
-export function getComputedStyle (node: Element, style: string | string[]): Record<string, string> {
+export function getStyleComputed (node: Element, style: string | string[]): Record<string, string> {
   const res: Record<string, string> = {};
   const nodeStyle = window.getComputedStyle(node);
   style = [].concat(style);
@@ -202,11 +216,28 @@ export function getPseudoElementStyle (node: Element, pseudoElement: string, sty
 
 // TODO: docs
 // TODO: test
-export function animateTo (node: Element, style: PropertyIndexedKeyframes, options: KeyframeAnimationOptions = {
+export function animateTo (node: Element, style: (Keyframe | string)[] | PropertyIndexedKeyframes | string, options: KeyframeEffectOptions = {
   duration: 300,
   easing: "ease",
   iterations: 1,
-  direction: "normal"
-}): Animation {
-  return node.animate(style, options);
+  direction: "normal",
+  fill: "forwards"
+}, onFinish?: EventListenerOrEventListenerObject): Animation {
+  style = [].concat(style);
+  const styleArr: Keyframe[] = style.map((item) => {
+    if(typeof item === "string") {
+      return parsePropertiesString(item);
+    }
+    return item;
+  });
+  if(styleArr.length === 1) {
+    const props      = Object.keys(styleArr[0]);
+    const startStyle = getStyleComputed(node, props);
+    styleArr.unshift(startStyle);
+  }
+  const animation = node.animate(styleArr, options);
+  if(onFinish) {
+    animation.addEventListener("finish", onFinish);
+  }
+  return animation;
 }
