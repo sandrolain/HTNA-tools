@@ -17,6 +17,8 @@ export function getDescendantProp (obj: Record<any, any>, desc: string): any {
 }
 
 
+// TODO: test
+// TODO: docs
 export function watch<T=any> (object: Record<string | number, T>, callback: (propertyName: string | number) => void): ProxyHandler<Record<string | number, T>> {
   const handler = {
     get (target: Record<string | number, T>, property: string | number, receiver: any): any {
@@ -39,4 +41,30 @@ export function watch<T=any> (object: Record<string | number, T>, callback: (pro
     }
   };
   return new Proxy(object, handler);
+}
+
+
+// TODO: test
+// TODO: docs
+export function getPropertiesDiff (object: Record<string, any>): () => string[] {
+  const props = Object.getOwnPropertyNames(object);
+  return function (): string[] {
+    const currentProps = Object.getOwnPropertyNames( window );
+    const newProps     = currentProps.filter((key) => !props.includes(key));
+    return newProps;
+  };
+}
+
+
+// TODO: test
+// TODO: docs
+export function getPropertiesRollback (object: Record<string, any>): () => string[] {
+  const diffFn = getPropertiesDiff(object);
+  return function (): string[] {
+    const newProps = diffFn();
+    for(const key of newProps) {
+      delete object[key];
+    }
+    return newProps;
+  };
 }
