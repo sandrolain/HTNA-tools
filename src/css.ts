@@ -192,6 +192,18 @@ export function getStyle (node: HTMLElement, style: string | string[]): Record<s
 
 // TODO: docs
 // TODO: test
+export function setStyleRollback (node: HTMLElement, style: Record<string, any>): () => Record<string, string> {
+  const props = Object.keys(style);
+  const oldStyle = getStyle(node, props);
+  setStyle(node, style);
+  return function (): Record<string, string> {
+    setStyle(node, oldStyle);
+    return oldStyle;
+  };
+}
+
+// TODO: docs
+// TODO: test
 export function getStyleComputed (node: Element, style: string | string[]): Record<string, string> {
   const res: Record<string, string> = {};
   const nodeStyle = window.getComputedStyle(node);
