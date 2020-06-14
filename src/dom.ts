@@ -81,6 +81,8 @@ export function $$<T=HTMLElement> (selector: string, targetElement: Document | H
 }
 
 
+// TODO: test
+// TODO: docs
 export class EventListenerSubscription {
   constructor (
     private node: Window | Document | Element,
@@ -96,6 +98,7 @@ export class EventListenerSubscription {
   }
 }
 
+
 // TODO: test
 // TODO: docs
 export function addEventListener (selector: string | Window | Document | Element, eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): EventListenerSubscription | false {
@@ -106,15 +109,22 @@ export function addEventListener (selector: string | Window | Document | Element
 
 // TODO: test
 // TODO: docs
-export function delegateEventListener (node: string | Window | Document | Element, eventName: string, delegatedSelector: string, listener: (event: Event) => void, options?: AddEventListenerOptions): EventListenerSubscription | false {
-  return addEventListener(node, eventName, (event: Event) => {
+export function getDelegatedListener (delegatedSelector: string, listener: (event: Event) => void): EventListenerOrEventListenerObject {
+  return (event: Event): void => {
     const eventTarget = event.target as HTMLElement;
     for(const targetItem of Array.from(document.querySelectorAll(delegatedSelector)).reverse()) {
       if(targetItem.contains(eventTarget)) {
         listener.call(targetItem, event);
       }
     }
-  }, options);
+  };
+}
+
+
+// TODO: test
+// TODO: docs
+export function delegateEventListener (node: string | Window | Document | Element, eventName: string, delegatedSelector: string, listener: (event: Event) => void, options?: AddEventListenerOptions): EventListenerSubscription | false {
+  return addEventListener(node, eventName, getDelegatedListener(delegatedSelector, listener), options);
 }
 
 
