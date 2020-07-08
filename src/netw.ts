@@ -68,8 +68,8 @@ export class Interceptor {
 
   // TODO: test
   // TODO: docs
-  getFetcher (): (input: RequestInfo, init: RequestInit) => Promise<Response> {
-    return async (input: RequestInfo, init: RequestInit): Promise<Response> => {
+  getFetcher (): (input: RequestInfo, init?: RequestInit) => Promise<Response> {
+    return async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
 
       let request = (input instanceof Request) ? input : new Request(input, init);
 
