@@ -253,3 +253,25 @@ export function animateTo (node: Element, style: (Keyframe | string)[] | Propert
   }
   return animation;
 }
+
+// TODO: docs
+// TODO: test
+export function addStyleLinkToHead (url: string, media: string = "all"): HTMLLinkElement {
+  const node = document.createElement("link");
+  node.setAttribute("rel", "stylesheet");
+  node.setAttribute("type", "text/css");
+  node.setAttribute("media", media);
+  node.setAttribute("href", url);
+  document.getElementsByTagName("head")[0].appendChild(node);
+  return node;
+}
+
+// TODO: docs
+// TODO: test
+export function addStyleToHead (style: string): HTMLStyleElement {
+  const node = document.createElement("style");
+  node.setAttribute("type", "text/css");
+  node.innerHTML = style;
+  document.getElementsByTagName("head")[0].appendChild(node);
+  return node;
+}
