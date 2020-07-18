@@ -14,7 +14,9 @@ export function createAudioContext (): AudioContext {
 // TODO: test
 // TODO: docs
 export function createAudioBuffer (context: AudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
-  return context.decodeAudioData(buffer);
+  return new Promise((resolve, reject) => {
+    context.decodeAudioData(buffer, (audioBuffer) => resolve(audioBuffer), (err) => reject(err));
+  });
 }
 
 // TODO: test
