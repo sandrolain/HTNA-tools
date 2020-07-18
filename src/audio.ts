@@ -2,7 +2,13 @@
 // TODO: test
 // TODO: docs
 export function createAudioContext (): AudioContext {
-  return new AudioContext();
+  if(window.AudioContext) {
+    return new AudioContext();
+  }
+  if((window as any).webkitAudioContext) {
+    return new (window as any).webkitAudioContext();
+  }
+  return null;
 }
 
 // TODO: test
