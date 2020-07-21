@@ -27,6 +27,19 @@ export class WorkspaceManager {
     this.workspaces[index] = space;
   }
 
+  getWorkspace (index: number): Workspace {
+    return this.workspaces[index] || null;
+  }
+
+  getWorkspaceById (id: string): Workspace {
+    for(const space of this.workspaces) {
+      if(space.id === id) {
+        return space;
+      }
+    }
+    return null;
+  }
+
   removeWorkspace (space: Workspace): boolean {
     return this.removeWorkspaceByIndex(this.workspaces.indexOf(space));
   }
