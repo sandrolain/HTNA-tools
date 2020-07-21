@@ -3,6 +3,7 @@ export interface TableConfig<T=any> {
   total?: number;
   perPage?: number;
   perPageOptions?: number[];
+  selectable?: boolean;
   multiSorting?: boolean;
   sorting?: Record<string, "ASC" | "DESC">;
   dataFetcher?: (table: Table) => T[] | Promise<T[]>;
@@ -12,9 +13,15 @@ export interface TableConfig<T=any> {
   applyPagination?: boolean;
 }
 
-type TableSortingMode = "ASC" | "DESC" | null;
+export type TableSortingMode = "ASC" | "DESC" | null;
 
 export type TableSorting = Record<string, TableSortingMode>;
+
+export interface TableRow<T=any> {
+  data: T;
+  checkbox?: HTMLInputElement;
+  tr: HTMLTableRowElement;
+}
 
 export interface TableColumn<T=any> {
   key: string;
@@ -33,6 +40,7 @@ export class Table<T=Record<string, any>> {
     total: 0,
     perPage: 10,
     perPageOptions: [10],
+    selectable: false,
     multiSorting: false,
     sorting: {},
     dataFetcher: (): T[] => [],
@@ -46,6 +54,10 @@ export class Table<T=Record<string, any>> {
   private columns: TableColumn[] = [];
   private filtersListeners: WeakMap<HTMLElement, (event: Event) => any> = new WeakMap();
   public dataset: T[] = [];
+
+  private rows: Map<T, TableRow<T>> = new Map();
+  private selected: Set<T> = new Set();
+  private checkboxAll: HTMLInputElement;
 
   private $table: HTMLTableElement;
   private $thead: HTMLTableSectionElement;
@@ -186,6 +198,24 @@ export class Table<T=Record<string, any>> {
     const showFilters = this.config.showFilters;
     const trLabels = document.createElement("tr");
     const trFilters = showFilters ? document.createElement("tr") : null;
+    if(this.config.selectable) {
+      const thCheckboxAll = document.createElement("th");
+      this.checkboxAll = document.createElement("input");
+      this.checkboxAll.type = "checkbox";
+      this.checkboxAll.addEventListener("change", () => {
+        if(this.checkboxAll.checked) {
+          this.selectAll();
+        } else {
+          this.unselectAll();
+        }
+      });
+      thCheckboxAll.appendChild(this.checkboxAll);
+      trLabels.appendChild(thCheckboxAll);
+      if(showFilters) {
+        const thEmpty = document.createElement("th");
+        trFilters.appendChild(thEmpty);
+      }
+    }
     for(const column of this.columns) {
       const [thLabel, thFilter] = this.renderColumnHead(column, showFilters);
       trLabels.appendChild(thLabel);
@@ -245,18 +275,41 @@ export class Table<T=Record<string, any>> {
 
   private renderBody (): void {
     this.$tbody.innerHTML = "";
+    this.selected = new Set(); ///
+    this.rows = new Map();
     const $f = document.createDocumentFragment();
-    for(const [index, row] of this.dataset.entries()) {
+    for(const [index, item] of this.dataset.entries()) {
       const tr = document.createElement("tr");
       tr.setAttribute("data-index", index.toString());
+      let checkbox: HTMLInputElement = null;
+      if(this.config.selectable) {
+        const td = document.createElement("td");
+        checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.addEventListener("change", () => {
+          if(checkbox.checked) {
+            this.select(item);
+          } else {
+            this.unselect(item);
+          }
+        });
+        td.appendChild(checkbox);
+        tr.appendChild(td);
+      }
       for(const column of this.columns) {
-        const value = (row as any)[column.key];
+        const value = (item as any)[column.key];
         const td = this.renderColumnCell(value, column);
         tr.appendChild(td);
       }
       $f.appendChild(tr);
+
+      this.$tbody.appendChild($f);
+      this.rows.set(item, {
+        data: item,
+        tr,
+        checkbox
+      });
     }
-    this.$tbody.appendChild($f);
   }
 
   private renderColumnCell (value: any, column: TableColumn): HTMLTableCellElement {
@@ -270,6 +323,76 @@ export class Table<T=Record<string, any>> {
   private renderTable (): void {
     this.renderHead();
     this.renderBody();
+  }
+
+  private select (item: T): void {
+    this.selected.add(item);
+    const row = this.rows.get(item);
+    if(row) {
+      row.tr.classList.add("selected");
+      if(row.checkbox) {
+        row.checkbox.checked = true;
+      }
+    }
+    this.verifyAllSelected();
+  }
+
+  private unselect (item: T): void {
+    this.selected.delete(item);
+    const row = this.rows.get(item);
+    if(row) {
+      row.tr.classList.remove("selected");
+      if(row.checkbox) {
+        row.checkbox.checked = false;
+      }
+    }
+    this.verifyAllSelected();
+  }
+
+  private verifyAllSelected (): void {
+    if(this.checkboxAll) {
+      let allSelected = true;
+      for(const row of this.rows.values()) {
+        if(!row.checkbox || !row.checkbox.checked) {
+          allSelected = false;
+          break;
+        }
+      }
+      this.checkboxAll.checked = (this.rows.size > 0 && allSelected);
+    }
+  }
+
+  private selectAll (): void {
+    for(const item of this.dataset) {
+      this.selected.add(item);
+      const row = this.rows.get(item);
+      if(row) {
+        row.tr.classList.add("selected");
+        if(row.checkbox) {
+          row.checkbox.checked = true;
+        }
+      }
+    }
+    if(this.checkboxAll) {
+      this.checkboxAll.checked = true;
+    }
+  }
+
+  private unselectAll (): void {
+    this.selected = new Set();
+    for(const row of this.rows.values()) {
+      row.tr.classList.remove("selected");
+      if(row.checkbox) {
+        row.checkbox.checked = false;
+      }
+    }
+    if(this.checkboxAll) {
+      this.checkboxAll.checked = false;
+    }
+  }
+
+  getSelected (): T[] {
+    return Array.from(this.selected);
   }
 
   private dataFetcherTO: number;
@@ -327,12 +450,21 @@ export class Table<T=Record<string, any>> {
 
   private sortData (data: T[]): T[] {
     // TODO: fix multi-sorting
-    for(const [key, sortType] of Object.entries(this.config.sorting)) {
-      const column = this.getColumnByKey(key);
-      if(column) {
-        data.sort((a: T, b: T) => column.sortFunction((a as any)[key], (b as any)[key], sortType));
+
+    data.sort((a: T, b: T): number => {
+      let sortResult: number = 0;
+      for(const [key, sortType] of Object.entries(this.config.sorting)) {
+        const column = this.getColumnByKey(key);
+        if(column) {
+          sortResult = column.sortFunction((a as any)[key], (b as any)[key], sortType);
+          if(sortResult !== 0) {
+            return sortResult;
+          }
+        }
       }
-    }
+      return sortResult;
+    });
+
     return data;
   }
 

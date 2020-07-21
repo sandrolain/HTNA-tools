@@ -1,4 +1,5 @@
 import { Table } from "../dist/esm/table.js";
+import { getFragmentFromHTML } from "../dist/esm/dom.js";
 import { addStyleLinkToHead, addStyleToHead } from "../dist/esm/css.js";
 
 addStyleLinkToHead("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
@@ -27,7 +28,10 @@ addStyleToHead(/*css*/`
 const data = [];
 
 for(let i = 0; i < 100; i++) {
+  const icons = ["fa-home", "fa-edit", "fa-trash"];
+  icons.sort(() => Math.random() - 0.5);
   data.push({
+    icon: icons[0],
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     tel: faker.phone.phoneNumber(),
@@ -43,10 +47,16 @@ const tbl = new Table({
   perPage: 10,
   dataFetcher: () => {
     return data.slice(0);
-  }
+  },
+  selectable: true
 });
 
 tbl.setColumns([
+  {
+    key: "icon",
+    label: "",
+    renderValue: (value) => getFragmentFromHTML(`<i class="fa ${value}"></i>`)
+  },
   {
     key: "firstName",
     label: "Firstname",
@@ -79,3 +89,10 @@ tbl.triggerDataFetcher();
 // }, 5000);
 
 document.getElementById("cnt").appendChild(tbl.tableNode);
+
+const btn = document.createElement("button");
+btn.innerHTML = "Get Selected";
+btn.addEventListener("click", () => {
+  alert(JSON.stringify(tbl.getSelected()));
+});
+document.getElementById("cnt").appendChild(btn);
