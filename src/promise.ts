@@ -96,3 +96,35 @@ export class LoaderManager {
     return this.running;
   }
 }
+
+
+export interface AbortiblePromise<T> {
+  originalPromise: Promise<T>;
+  promise: Promise<T>;
+  abortController: AbortController;
+  abort: () => void;
+}
+
+export function makeAbortible<T> (originalPromise: Promise<T>, abortController: AbortController = new AbortController()): AbortiblePromise<T> {
+  const getAbortError = (): Error & { isAborted?: boolean } => {
+    const error: Error & { isAborted?: boolean } = new Error("Promise aborted");
+    error.isAborted = true;
+    return error;
+  };
+
+  const promise = new Promise<T>((resolve, reject) => {
+    originalPromise.then(
+      (value) => abortController.signal.aborted ? reject(getAbortError()) : resolve(value),
+      (error) => abortController.signal.aborted ? reject(getAbortError()) : reject(error)
+    );
+  });
+
+  return {
+    originalPromise,
+    promise,
+    abortController,
+    abort (): void {
+      abortController.abort();
+    }
+  };
+}
