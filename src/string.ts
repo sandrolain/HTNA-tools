@@ -32,3 +32,39 @@ export function uuidv4 (): string {
     return v.toString(16);
   });
 }
+
+
+// TODO: test
+// TODO: docs
+export function compareVersionStrings (versionA: string, versionB: string): number {
+  const partsVersionA = versionA.split(".");
+  const partsVersionB = versionB.split(".");
+  const maxLength     = Math.max(partsVersionA.length, partsVersionB.length);
+
+  for(let i = 0; i < maxLength; i++) {
+    if(!(i in partsVersionA) && partsVersionB[i] !== "0") {
+      return -1;
+    }
+
+    if(!(i in partsVersionB) && partsVersionA[i] !== "0") {
+      return 1;
+    }
+
+    let valueA = parseInt(partsVersionA[i] || "0", 10);
+    let valueB = parseInt(partsVersionB[i] || "0", 10);
+
+    if(isNaN(valueA)) {
+      valueA = 0;
+    }
+
+    if(isNaN(valueB)) {
+      valueB = 0;
+    }
+
+    if(valueA !== valueB) {
+      return valueA - valueB;
+    }
+  }
+
+  return 0;
+}
