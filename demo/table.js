@@ -1,4 +1,4 @@
-import { Table } from "../dist/esm/table.js";
+import { Table, TableFSP } from "../dist/esm/table.js";
 import { getFragmentFromHTML } from "../dist/esm/dom.js";
 import { addStyleLinkToHead, addStyleToHead } from "../dist/esm/css.js";
 
@@ -27,26 +27,39 @@ addStyleToHead(/*css*/`
 
 const data = [];
 
+const otherColumns = [];
+
+for(let i = 0; i < 200; i++) {
+  otherColumns.push({
+    key: faker.random.uuid(),
+    label: faker.lorem.words()
+  });
+}
+
 for(let i = 0; i < 100; i++) {
   const icons = ["fa-home", "fa-edit", "fa-trash"];
   icons.sort(() => Math.random() - 0.5);
-  data.push({
+  const row = {
     icon: icons[0],
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     tel: faker.phone.phoneNumber(),
     email: faker.internet.email()
-  });
+  };
+  for(let col of otherColumns) {
+    row[col.key] = faker.lorem.words();
+  }
+
+  data.push(row);
 }
 
 const tbl = new Table({
   multiSorting: true,
-  applyPagination: true,
-  applySorting: true,
   page: 1,
-  perPage: 10,
+  perPage: 20,
   dataFetcher: () => {
-    return data.slice(0);
+    const fsp = new TableFSP(tbl);
+    return fsp.processData(data);
   },
   selectable: true
 });
@@ -65,7 +78,7 @@ tbl.setColumns([
   {
     key: "lastName",
     label: "Lastname",
-    sortingModes: ["ASC"]
+    sortingModes: ["ASC", null]
   },
   {
     key: "tel",
@@ -74,7 +87,8 @@ tbl.setColumns([
   {
     key: "email",
     label: "E-mail"
-  }
+  },
+  ...otherColumns
 ]);
 
 tbl.onData(() => {

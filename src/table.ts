@@ -8,9 +8,6 @@ export interface TableConfig<T=any> {
   sorting?: Record<string, "ASC" | "DESC">;
   dataFetcher?: (table: Table) => T[] | Promise<T[]>;
   showFilters?: boolean;
-  applyFilters?: boolean;
-  applySorting?: boolean;
-  applyPagination?: boolean;
 }
 
 export type TableSortingMode = "ASC" | "DESC" | null;
@@ -44,10 +41,7 @@ export class Table<T=Record<string, any>> {
     multiSorting: false,
     sorting: {},
     dataFetcher: (): T[] => [],
-    showFilters: false,
-    applyFilters: false,
-    applySorting: false,
-    applyPagination: false
+    showFilters: false
   }
 
   private listeners: ((table: Table) => any | Promise<any>)[] = [];
@@ -100,6 +94,10 @@ export class Table<T=Record<string, any>> {
   setConfig (config: TableConfig): void {
     Object.assign(this.config, config);
     this.triggerDataFetcher();
+  }
+
+  getConfig (): TableConfig {
+    return Object.assign({}, this.config);
   }
 
   setColumnSorting (key: string, sorting: TableSortingMode): void {
@@ -239,7 +237,9 @@ export class Table<T=Record<string, any>> {
     if(column.sortingModes && column.sortingModes.length > 0) {
       const mode = this.config.sorting[column.key] || "";
       thLabel.setAttribute("data-sorting", mode);
-      thLabel.addEventListener("click", () => {
+      thLabel.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         this.toggleColumnSorting(column.key);
         this.requestDataFetcher(0);
       });
@@ -412,18 +412,6 @@ export class Table<T=Record<string, any>> {
       data = await data;
     }
 
-    if(this.config.applyFilters) {
-      data = this.filterData(data);
-    }
-
-    if(this.config.applySorting) {
-      data = this.sortData(data);
-    }
-
-    if(this.config.applyPagination) {
-      data = this.paginateData(data);
-    }
-
     this.dataset = data;
 
     for(const listener of this.listeners) {
@@ -443,18 +431,26 @@ export class Table<T=Record<string, any>> {
   onData (listener: (table: Table) => any): void {
     this.listeners.push(listener);
   }
+}
+
+
+export class TableFSP<T=any> {
+
+  constructor (private table: Table) {
+  }
 
   private filterData (data: T[]): T[] {
-    return data;
+    // TODO
+    return data.slice(0);
   }
 
   private sortData (data: T[]): T[] {
-    // TODO: fix multi-sorting
+    const config = this.table.getConfig();
 
     data.sort((a: T, b: T): number => {
       let sortResult: number = 0;
-      for(const [key, sortType] of Object.entries(this.config.sorting)) {
-        const column = this.getColumnByKey(key);
+      for(const [key, sortType] of Object.entries(config.sorting)) {
+        const column = this.table.getColumnByKey(key);
         if(column) {
           sortResult = column.sortFunction((a as any)[key], (b as any)[key], sortType);
           if(sortResult !== 0) {
@@ -469,9 +465,17 @@ export class Table<T=Record<string, any>> {
   }
 
   private paginateData (data: T[]): T[] {
-    const pageIndex  = Math.min(Math.max(this.config.page, 1), Math.ceil(data.length / this.config.perPage)) - 1;
-    const sliceStart = pageIndex * this.config.perPage;
-    const sliceEnd   = sliceStart + this.config.perPage;
+    const config     = this.table.getConfig();
+    const pageIndex  = Math.min(Math.max(config.page, 1), Math.ceil(data.length / config.perPage)) - 1;
+    const sliceStart = pageIndex * config.perPage;
+    const sliceEnd   = sliceStart + config.perPage;
     return data.slice(sliceStart, sliceEnd);
+  }
+
+  processData (data: T[]): T[] {
+    data = this.filterData(data);
+    data = this.sortData(data);
+    data = this.paginateData(data);
+    return data;
   }
 }
