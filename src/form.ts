@@ -106,3 +106,18 @@ export function getFormValues (node: HTMLElement): [string, GetValueResult][] {
   return data;
 }
 
+
+export type ElementWithValidity = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+// TODO: docs
+// TODO: test
+export function addCustomValidityChecker (node: ElementWithValidity, checker: (input: ElementWithValidity) => string): () => void {
+  const listener = (): void => {
+    const customValidity = checker(node);
+    node.setCustomValidity(customValidity || "");
+  };
+  node.addEventListener("input", listener);
+  return (): void => {
+    node.removeEventListener("input", listener);
+  };
+}
