@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #one, #two {
+        border: 1px solid #999999;
+        padding: 20px;
+        display: inline-flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        height: 110px;
+        width: 30%;
+        vertical-align: top;
+      }
+      .item {
+        border: 1px solid #CCCCCC;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        margin: 5px;
+      }
+      .handle {
+        width: 1em;
+        height: 1em;
+        background: #CCCCCC;
+        margin-right: 1em;
+      }
+
+      .draggable-inside {
+        background-color: #FF0000;
+      }
+      .draggable-dragging {
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="one">
+      <div class="item"><div class="handle"></div>One</div>
+      <div class="item"><div class="handle"></div>Two</div>
+      <div class="item"><div class="handle"></div>Three</div>
+      <div class="item"><div class="handle"></div>Four</div>
+      <div class="item"><div class="handle"></div>Five</div>
+    </div>
+    <div id="two">
+      <div class="item"><div class="handle"></div>Six</div>
+      <div class="item"><div class="handle"></div>Seven</div>
+      <div class="item"><div class="handle"></div>Eight</div>
+      <div class="item"><div class="handle"></div>Nine</div>
+      <div class="item"><div class="handle"></div>Ten</div>
+    </div>
+    <script type="module">
+      import { Draggable } from "../dist/esm/draggable.js";
+
+      const dr = new Draggable({
+        containerSelector: "#one, #two",
+        itemsSelector: ".item",
+        handleSelector: ".handle"
+      });
+
+
+    </script>
+  </body>
+</html>

@@ -40,6 +40,7 @@ export default [
       date: "src/date.ts",
       debug: "src/debug.ts",
       dom: "src/dom.ts",
+      draggable: "src/draggable.ts",
       editable: "src/editable.ts",
       file: "src/file.ts",
       form: "src/form.ts",

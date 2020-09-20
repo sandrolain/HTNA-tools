@@ -7,6 +7,7 @@ export * from "./css";
 export * from "./date";
 export * from "./debug";
 export * from "./dom";
+export * from "./draggable";
 export * from "./editable";
 export * from "./file";
 export * from "./form";
