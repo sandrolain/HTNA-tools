@@ -53,10 +53,18 @@
       import { Draggable } from "../dist/esm/draggable.js";
 
       const dr = new Draggable({
-        containerSelector: "#one, #two",
+        containers: {
+          one: "#one",
+          two: "#two"
+        },
         itemsSelector: ".item",
-        handleSelector: ".handle"
+        handleSelector: ".handle",
+        dataForItem: (item) => item.innerText
       });
+
+      dr.onChange(() => {
+        console.log(dr.getData());
+      })
 
 
     </script>

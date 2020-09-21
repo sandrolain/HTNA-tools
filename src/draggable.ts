@@ -1,18 +1,28 @@
 
-export interface DraggableConfig {
+export interface DraggableConfig<T> {
   itemsSelector: string;
   handleSelector?: string;
-  containerSelector: string;
+  containers: Record<string, string | HTMLElement>;
+  dataForItem: (itemNode: HTMLElement) => T;
 }
 
-export class Draggable {
+export type DraggableListener = (draggable: Draggable) => void;
+
+export interface DraggableData<T> {
+  container: string;
+  items: T[];
+}
+
+export class Draggable<T=any> {
   private draggingElement: HTMLElement;
   private otherItems: HTMLElement[] = [];
+  private changeListeners: DraggableListener[] = [];
 
-  constructor (private config: DraggableConfig) {
+  constructor (private config: DraggableConfig<T>) {
     const containers = this.getContainerElements();
 
-    for(const container of containers) {
+    for(const containerItem of containers) {
+      const container = containerItem.node;
       container.addEventListener("dragover", (event) => {
         if(this.draggingElement) {
           const target = event.target as HTMLElement;
@@ -82,6 +92,7 @@ export class Draggable {
 
       container.addEventListener("drop", () => {
         container.classList.remove("draggable-inside");
+        this.triggerListeners(this.changeListeners);
       });
     }
 
@@ -98,17 +109,27 @@ export class Draggable {
     return Array.from(parent.querySelectorAll(selector));
   }
 
-  private getContainerElements (): HTMLElement[] {
-    return this.getElements(this.config.containerSelector);
+  private getContainerElements (): { key: string; node: HTMLElement } [] {
+    const result: { key: string; node: HTMLElement }[] = [];
+    for(const [key, selector] of Object.entries(this.config.containers)) {
+      const node = (selector instanceof HTMLElement) ? selector : document.querySelector<HTMLElement>(selector);
+      if(node) {
+        result.push({
+          key,
+          node
+        });
+      }
+    }
+    return result;
   }
 
-  private getItemsElementForContainer (conainter: HTMLElement): HTMLElement[] {
-    return this.getElements(this.config.itemsSelector, conainter);
+  private getItemsElementForContainer (containter: HTMLElement): HTMLElement[] {
+    return this.getElements(this.config.itemsSelector, containter);
   }
 
   private getAllItems (exclude: HTMLElement): HTMLElement[] {
     const containers = this.getContainerElements();
-    const items = containers.map((container) => this.getItemsElementForContainer(container)).flat();
+    const items = containers.map((container) => this.getItemsElementForContainer(container.node)).flat();
     const index = items.indexOf(exclude);
     if(index > -1) {
       items.splice(index, 1);
@@ -130,5 +151,33 @@ export class Draggable {
         };
       }
     }
+  }
+
+  private triggerListeners (listeners: DraggableListener[]): void {
+    console.log("triggerListeners -> listeners", listeners)
+    for(const listener of listeners) {
+      try {
+        listener(this);
+      } catch(e) {
+        //
+      }
+    }
+  }
+
+  onChange (listener: DraggableListener): void {
+    this.changeListeners.push(listener);
+  }
+
+  getData (): DraggableData<T>[] {
+    const result: DraggableData<T>[] = [];
+    const containers = this.getContainerElements();
+    for(const container of containers) {
+      const items = this.getItemsElementForContainer(container.node);
+      result.push({
+        container: container.key,
+        items: items.map((node) => this.config.dataForItem(node))
+      }) ;
+    }
+    return result;
   }
 }
