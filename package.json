@@ -15,9 +15,9 @@
     "build": "npx rollup -c",
     "watch": "npx rollup -cw",
     "prepare": "npm run build",
-    "test": "jest --runInBand",
-    "test:coverage": "jest --runInBand --coverage",
-    "test:coverage:open": "jest --runInBand --coverage && open ./coverage/lcov-report/index.html",
+    "test": "npx jest --runInBand",
+    "test:coverage": "npx jest --runInBand --coverage",
+    "test:coverage:open": "npx jest --runInBand --coverage && open ./coverage/lcov-report/index.html",
     "docs:build": "npx typedoc ./src",
     "docs:serve": "npm run docs:build && npx open-cli ./docs/typedocs/index.html"
   },
